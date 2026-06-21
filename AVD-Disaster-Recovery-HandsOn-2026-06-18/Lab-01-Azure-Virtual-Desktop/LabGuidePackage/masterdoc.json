@@ -5,23 +5,23 @@
     "BaseURL": "https://raw.githubusercontent.com/Raghavendra-spektra/Mciroland-test/refs/heads/main/Lab-01-Azure-Virtual-Desktop/LabGuidePackage/LabGuide/",
     "Files": [
       {
-        "RawFilePath": "https://raw.githubusercontent.com/Raghavendra-spektra/Mciroland-test/refs/heads/main/Lab-01-Azure-Virtual-Desktop/LabGuidePackage/LabGuide/GettingStarted.md",
+        "RawFilePath": "https://raw.githubusercontent.com/fardeena-spektra/MicroLand-AVD/refs/heads/main/AVD-Disaster-Recovery-HandsOn-2026-06-18/Lab-01-Azure-Virtual-Desktop/LabGuidePackage/LabGuide/GettingStarted.md",
         "Order": 1
       },
       {
-        "RawFilePath": "https://raw.githubusercontent.com/Raghavendra-spektra/Mciroland-test/refs/heads/main/Lab-01-Azure-Virtual-Desktop/LabGuidePackage/LabGuide/labguide-1.md",
+        "RawFilePath": "https://raw.githubusercontent.com/fardeena-spektra/MicroLand-AVD/refs/heads/main/AVD-Disaster-Recovery-HandsOn-2026-06-18/Lab-01-Azure-Virtual-Desktop/LabGuidePackage/LabGuide/labguide-1.md",
         "Order": 2
       },
       {
-        "RawFilePath": "https://raw.githubusercontent.com/Raghavendra-spektra/Mciroland-test/refs/heads/main/Lab-01-Azure-Virtual-Desktop/LabGuidePackage/LabGuide/labguide-2.md",
+        "RawFilePath": "https://raw.githubusercontent.com/fardeena-spektra/MicroLand-AVD/refs/heads/main/AVD-Disaster-Recovery-HandsOn-2026-06-18/Lab-01-Azure-Virtual-Desktop/LabGuidePackage/LabGuide/labguide-2.md",
         "Order": 3
       },
       {
-        "RawFilePath": "https://raw.githubusercontent.com/Raghavendra-spektra/Mciroland-test/refs/heads/main/Lab-01-Azure-Virtual-Desktop/LabGuidePackage/LabGuide/labguide-3.md",
+        "RawFilePath": "https://raw.githubusercontent.com/fardeena-spektra/MicroLand-AVD/refs/heads/main/AVD-Disaster-Recovery-HandsOn-2026-06-18/Lab-01-Azure-Virtual-Desktop/LabGuidePackage/LabGuide/labguide-3.md",
         "Order": 4
       },
       {
-        "RawFilePath": "https://raw.githubusercontent.com/Raghavendra-spektra/Mciroland-test/refs/heads/main/Lab-01-Azure-Virtual-Desktop/LabGuidePackage/LabGuide/labguide-4.md",
+        "RawFilePath": "https://raw.githubusercontent.com/fardeena-spektra/MicroLand-AVD/refs/heads/main/AVD-Disaster-Recovery-HandsOn-2026-06-18/Lab-01-Azure-Virtual-Desktop/LabGuidePackage/LabGuide/labguide-4.md",
         "Order": 5
       }
     ]
