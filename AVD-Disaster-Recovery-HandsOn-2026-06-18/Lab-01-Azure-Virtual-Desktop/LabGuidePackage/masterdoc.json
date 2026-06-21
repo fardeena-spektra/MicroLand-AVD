@@ -2,7 +2,7 @@
   {
     "Name": "Azure Virtual Desktop — Disaster Recovery (Lab 01)",
     "Language": "English",
-    "BaseURL": "https://raw.githubusercontent.com/Raghavendra-spektra/Mciroland-test/refs/heads/main/Lab-01-Azure-Virtual-Desktop/LabGuidePackage/LabGuide/",
+    "BaseURL": "https://raw.githubusercontent.com/fardeena-spektra/MicroLand-AVD/refs/heads/main/AVD-Disaster-Recovery-HandsOn-2026-06-18/Lab-01-Azure-Virtual-Desktop/LabGuidePackage/LabGuide/",
     "Files": [
       {
         "RawFilePath": "https://raw.githubusercontent.com/fardeena-spektra/MicroLand-AVD/refs/heads/main/AVD-Disaster-Recovery-HandsOn-2026-06-18/Lab-01-Azure-Virtual-Desktop/LabGuidePackage/LabGuide/GettingStarted.md",
