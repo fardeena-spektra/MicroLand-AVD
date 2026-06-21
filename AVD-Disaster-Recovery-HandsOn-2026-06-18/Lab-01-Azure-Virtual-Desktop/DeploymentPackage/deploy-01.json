@@ -1,0 +1,541 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "Lab 01 (Azure Virtual Desktop - Disaster Recovery) - single Windows Server 2022 management/jump VM from which the candidate performs the AVD DR tasks (deploy a secondary host pool in West US, register it with the existing workspace, configure FSLogix on the provided Azure Files share, and simulate a regional outage) against the lab's own subscription / resource group. This template ALSO pre-deploys a working PRIMARY Azure Virtual Desktop environment in East US (resource group, VNet, Storage Account + profiles share, Workspace, Host Pool, Application Group, two Session Host VMs) plus a SECONDARY VNet in West US so the candidate starts from a live primary and builds out DR."
+  },
+  "parameters": {
+    "adminUsername": {
+      "type": "string"
+    },
+    "adminPassword": {
+      "type": "securestring"
+    },
+    "azureUserName": {
+      "type": "string"
+    },
+    "azurePassword": {
+      "type": "securestring"
+    },
+    "ODLID": {
+      "type": "String"
+    },
+    "DeploymentID": {
+      "type": "string"
+    },
+    "trainerUserName": {
+      "type": "string"
+    },
+    "trainerUserPassword": {
+      "type": "string"
+    },
+    "baseTime": {
+      "type": "string",
+      "defaultValue": "[utcNow('u')]",
+      "metadata": {
+        "description": "Used only to derive a future expiration time for the primary host pool's session-host registration token. Defaults to deployment time via utcNow(); do not supply a value."
+      }
+    }
+  },
+  "variables": {
+    "cloudlabsCommon": "[concat(' -AzureUserName ', parameters('azureUserName'), ' -AzurePassword ', parameters('azurePassword'), ' -AzureTenantID ', variables('AzureTenantID'), ' -AzureSubscriptionID ', variables('AzureSubscriptionID'), ' -odlId ', parameters('ODLID'), ' -DeploymentID ', parameters('DeploymentID'))]",
+    "labSeedUser": "labuser",
+    "AzureSubscriptionID": "[subscription().subscriptionId]",
+    "AzureTenantID": "[subscription().tenantId]",
+    "bootstrapScriptUri": "https://microlandtemplate-67447.s3.us-east-1.amazonaws.com/AVD/bootstrap-01.ps1",
+    "addressPrefix": "10.0.0.0/16",
+    "networkInterfaceName": "[concat(variables('vmName'), '-nic')]",
+    "networkSecurityGroupName": "[concat(variables('vmName'), '-nsg')]",
+    "publicIpAddressDNSName": "[concat('labvm', uniqueString(resourceGroup().id))]",
+    "publicIpAddressName": "[concat(variables('vmName'), '-pip')]",
+    "subnetName": "Subnet",
+    "subnetPrefix": "10.0.0.0/24",
+    "subnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets/', variables('virtualNetworkName'), variables('subnetName'))]",
+    "virtualMachineSize": "Standard_B2s",
+    "virtualNetworkName": "labvNet",
+    "vmName": "[concat('labvm-', parameters('DeploymentID'))]",
+    "location": "[resourceGroup().location]",
+
+    "eastusLocation": "eastus",
+    "westusLocation": "westus",
+
+    "vnetEastusName": "vnet-avd-eastus",
+    "vnetEastusPrefix": "10.10.0.0/16",
+    "vnetEastusSubnetName": "hosts",
+    "vnetEastusSubnetPrefix": "10.10.1.0/24",
+    "vnetEastusSubnetRef": "[resourceId('Microsoft.Network/virtualNetworks/subnets', variables('vnetEastusName'), variables('vnetEastusSubnetName'))]",
+
+    "vnetWestusName": "vnet-avd-westus",
+    "vnetWestusPrefix": "10.20.0.0/16",
+    "vnetWestusSubnetName": "hosts",
+    "vnetWestusSubnetPrefix": "10.20.1.0/24",
+
+    "storageAccountName": "[concat('stavd', uniqueString(resourceGroup().id))]",
+    "fileShareName": "profiles",
+
+    "workspaceName": "ws-avd",
+    "hostPoolEastusName": "hp-avd-eastus",
+    "hostPoolWestusName": "hp-avd-westus",
+    "appGroupEastusName": "ag-avd-eastus",
+    "appGroupWestusName": "ag-avd-westus",
+    "tokenExpirationTime": "[dateTimeAdd(parameters('baseTime'), 'PT24H')]",
+
+    "sessionHostSize": "Standard_D2s_v5",
+    "sessionHostCount": 2,
+    "sessionHostPrefix": "[concat('sheast', parameters('DeploymentID'))]",
+    "avdAgentDscModulesUrl": "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_1.0.02797.442.zip"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2017-04-01",
+      "name": "[variables('virtualNetworkName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [ "[variables('addressPrefix')]" ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('subnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('subnetPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Network/publicIpAddresses",
+      "apiVersion": "2017-08-01",
+      "name": "[variables('publicIpAddressName')]",
+      "location": "[variables('location')]",
+      "sku": {
+        "name": "Standard"
+      },
+      "properties": {
+        "publicIpAllocationMethod": "Static",
+        "dnsSettings": {
+          "domainNameLabel": "[concat(variables('publicIpAddressDNSName'))]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2019-07-01",
+      "name": "[variables('vmName')]",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/networkInterfaces/', variables('networkInterfaceName'))]"
+      ],
+      "properties": {
+        "osProfile": {
+          "computerName": "labvm",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "windowsConfiguration": {
+            "provisionVMAgent": true
+          }
+        },
+        "hardwareProfile": {
+          "vmSize": "[variables('virtualMachineSize')]"
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsServer",
+            "offer": "WindowsServer",
+            "sku": "2022-datacenter-azure-edition",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "fromImage",
+            "name": "[concat(variables('vmName'), '-osdisk')]",
+            "diskSizeGB": 128,
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            }
+          },
+          "dataDisks": []
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', variables('networkInterfaceName'))]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkSecurityGroups",
+      "apiVersion": "2017-06-01",
+      "name": "[variables('networkSecurityGroupName')]",
+      "location": "[variables('location')]",
+      "properties": {
+        "securityRules": [
+          {
+            "name": "default-allow-rdp",
+            "properties": {
+              "priority": 110,
+              "protocol": "TCP",
+              "access": "Allow",
+              "direction": "Inbound",
+              "sourceAddressPrefix": "*",
+              "sourcePortRange": "*",
+              "destinationAddressPrefix": "*",
+              "destinationPortRange": "3389"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "name": "[concat(variables('vmName'), '/', 'windowsExtension')]",
+      "apiVersion": "2019-07-01",
+      "location": "[variables('location')]",
+      "comments": "Custom Script Extension - installs the candidate tooling (Az PowerShell module + Az.DesktopVirtualization) used to perform the AVD Disaster Recovery tasks against the lab subscription / resource group, and writes the candidate README describing the pre-deployed primary AVD environment.",
+      "tags": {
+        "displayName": "VM Extension"
+      },
+      "dependsOn": [
+        "[concat('Microsoft.Compute/virtualMachines/', variables('vmName'))]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.Compute",
+        "type": "CustomScriptExtension",
+        "typeHandlerVersion": "1.10",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "fileUris": [
+            "[variables('bootstrapScriptUri')]"
+          ]
+        },
+        "protectedSettings": {
+          "commandToExecute": "[concat('powershell -ExecutionPolicy Unrestricted -File bootstrap-01.ps1', variables('cloudlabsCommon'))]"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2016-09-01",
+      "name": "[variables('networkInterfaceName')]",
+      "location": "[variables('location')]",
+      "dependsOn": [
+        "[concat('Microsoft.Network/virtualNetworks/', variables('virtualNetworkName'))]",
+        "[concat('Microsoft.Network/publicIpAddresses/', variables('publicIpAddressName'))]",
+        "[concat('Microsoft.Network/networkSecurityGroups/', variables('networkSecurityGroupName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[variables('subnetRef')]"
+              },
+              "privateIPAllocationMethod": "Dynamic",
+              "publicIpAddress": {
+                "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/publicIpAddresses', variables('publicIpAddressName'))]"
+              }
+            }
+          }
+        ],
+        "networkSecurityGroup": {
+          "id": "[resourceId(resourceGroup().name, 'Microsoft.Network/networkSecurityGroups', variables('networkSecurityGroupName'))]"
+        }
+      }
+    },
+
+    {
+      "comments": "PRE-DEPLOYED PRIMARY AVD networking - East US virtual network with a hosts subnet for the primary session hosts.",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2022-07-01",
+      "name": "[variables('vnetEastusName')]",
+      "location": "[variables('eastusLocation')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [ "[variables('vnetEastusPrefix')]" ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('vnetEastusSubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('vnetEastusSubnetPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "comments": "SECONDARY DR networking - West US virtual network with a hosts subnet. Pre-provisioned and empty; the candidate attaches the new West US session hosts (hp-avd-westus) here.",
+      "type": "Microsoft.Network/virtualNetworks",
+      "apiVersion": "2022-07-01",
+      "name": "[variables('vnetWestusName')]",
+      "location": "[variables('westusLocation')]",
+      "properties": {
+        "addressSpace": {
+          "addressPrefixes": [ "[variables('vnetWestusPrefix')]" ]
+        },
+        "subnets": [
+          {
+            "name": "[variables('vnetWestusSubnetName')]",
+            "properties": {
+              "addressPrefix": "[variables('vnetWestusSubnetPrefix')]"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "comments": "Geo-redundant storage account (Standard_GRS) hosting the Azure Files share used for FSLogix profile containers, so profiles survive a regional outage. The candidate points the DR session hosts at the 'profiles' share.",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2022-09-01",
+      "name": "[variables('storageAccountName')]",
+      "location": "[variables('eastusLocation')]",
+      "sku": {
+        "name": "Standard_GRS"
+      },
+      "kind": "StorageV2",
+      "properties": {
+        "minimumTlsVersion": "TLS1_2",
+        "allowBlobPublicAccess": false,
+        "supportsHttpsTrafficOnly": true,
+        "azureFilesIdentityBasedAuthentication": {
+          "directoryServiceOptions": "None"
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Storage/storageAccounts/fileServices",
+      "apiVersion": "2022-09-01",
+      "name": "[concat(variables('storageAccountName'), '/default')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts', variables('storageAccountName'))]"
+      ],
+      "properties": {}
+    },
+    {
+      "comments": "Azure Files share 'profiles' for FSLogix VHD(X) profile containers. UNC path: \\\\<storageaccount>.file.core.windows.net\\profiles",
+      "type": "Microsoft.Storage/storageAccounts/fileServices/shares",
+      "apiVersion": "2022-09-01",
+      "name": "[concat(variables('storageAccountName'), '/default/', variables('fileShareName'))]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Storage/storageAccounts/fileServices', variables('storageAccountName'), 'default')]"
+      ],
+      "properties": {
+        "shareQuota": 100,
+        "enabledProtocols": "SMB"
+      }
+    },
+    {
+      "comments": "PRIMARY AVD host pool (East US) - pooled, BreadthFirst load balancing. registrationInfo generates a session-host registration token (24h expiry) consumed by the primary session-host DSC extension below. NOTE: AVD session-host registration and Entra/AD join are intricate and platform-managed; the registration token, agent bootstrapper and DSC configuration are owned by the AVD service.",
+      "type": "Microsoft.DesktopVirtualization/hostPools",
+      "apiVersion": "2022-09-09",
+      "name": "[variables('hostPoolEastusName')]",
+      "location": "[variables('eastusLocation')]",
+      "properties": {
+        "hostPoolType": "Pooled",
+        "loadBalancerType": "BreadthFirst",
+        "preferredAppGroupType": "Desktop",
+        "maxSessionLimit": 10,
+        "startVMOnConnect": true,
+        "validationEnvironment": false,
+        "registrationInfo": {
+          "expirationTime": "[variables('tokenExpirationTime')]",
+          "registrationTokenOperation": "Update"
+        }
+      }
+    },
+    {
+      "comments": "PRIMARY Desktop application group bound to hp-avd-eastus.",
+      "type": "Microsoft.DesktopVirtualization/applicationGroups",
+      "apiVersion": "2022-09-09",
+      "name": "[variables('appGroupEastusName')]",
+      "location": "[variables('eastusLocation')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.DesktopVirtualization/hostPools', variables('hostPoolEastusName'))]"
+      ],
+      "properties": {
+        "applicationGroupType": "Desktop",
+        "hostPoolArmPath": "[resourceId('Microsoft.DesktopVirtualization/hostPools', variables('hostPoolEastusName'))]",
+        "friendlyName": "East US Desktop (primary)"
+      }
+    },
+    {
+      "comments": "AVD workspace. Pre-registered with the primary application group (ag-avd-eastus); the candidate adds the West US application group (ag-avd-westus) to applicationGroupReferences as part of the DR registration task.",
+      "type": "Microsoft.DesktopVirtualization/workspaces",
+      "apiVersion": "2022-09-09",
+      "name": "[variables('workspaceName')]",
+      "location": "[variables('eastusLocation')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', variables('appGroupEastusName'))]"
+      ],
+      "properties": {
+        "friendlyName": "AVD Workspace",
+        "description": "Shared AVD workspace for primary (East US) and DR (West US) application groups.",
+        "applicationGroupReferences": [
+          "[resourceId('Microsoft.DesktopVirtualization/applicationGroups', variables('appGroupEastusName'))]"
+        ]
+      }
+    },
+    {
+      "comments": "NICs for the two PRIMARY session hosts on the East US hosts subnet.",
+      "type": "Microsoft.Network/networkInterfaces",
+      "apiVersion": "2022-07-01",
+      "name": "[concat(variables('sessionHostPrefix'), copyIndex(), '-nic')]",
+      "location": "[variables('eastusLocation')]",
+      "copy": {
+        "name": "sessionHostNicCopy",
+        "count": "[variables('sessionHostCount')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/virtualNetworks', variables('vnetEastusName'))]"
+      ],
+      "properties": {
+        "ipConfigurations": [
+          {
+            "name": "ipconfig1",
+            "properties": {
+              "subnet": {
+                "id": "[variables('vnetEastusSubnetRef')]"
+              },
+              "privateIPAllocationMethod": "Dynamic"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "comments": "Two PRIMARY session host VMs (Windows 11 Enterprise multi-session) in East US, attached to hp-avd-eastus via the AVD agent DSC extension below.",
+      "type": "Microsoft.Compute/virtualMachines",
+      "apiVersion": "2022-08-01",
+      "name": "[concat(variables('sessionHostPrefix'), copyIndex())]",
+      "location": "[variables('eastusLocation')]",
+      "copy": {
+        "name": "sessionHostVmCopy",
+        "count": "[variables('sessionHostCount')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('sessionHostPrefix'), copyIndex(), '-nic'))]"
+      ],
+      "properties": {
+        "hardwareProfile": {
+          "vmSize": "[variables('sessionHostSize')]"
+        },
+        "osProfile": {
+          "computerName": "[concat('sh', copyIndex())]",
+          "adminUsername": "[parameters('adminUsername')]",
+          "adminPassword": "[parameters('adminPassword')]",
+          "windowsConfiguration": {
+            "provisionVMAgent": true
+          }
+        },
+        "storageProfile": {
+          "imageReference": {
+            "publisher": "MicrosoftWindowsDesktop",
+            "offer": "Windows-11",
+            "sku": "win11-22h2-avd",
+            "version": "latest"
+          },
+          "osDisk": {
+            "createOption": "fromImage",
+            "name": "[concat(variables('sessionHostPrefix'), copyIndex(), '-osdisk')]",
+            "diskSizeGB": 128,
+            "managedDisk": {
+              "storageAccountType": "Standard_LRS"
+            }
+          },
+          "dataDisks": []
+        },
+        "networkProfile": {
+          "networkInterfaces": [
+            {
+              "id": "[resourceId('Microsoft.Network/networkInterfaces', concat(variables('sessionHostPrefix'), copyIndex(), '-nic'))]"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "comments": "AVD agent registration for the PRIMARY session hosts via the platform-managed PowerShell DSC extension (Microsoft AVD 'AddSessionHost' configuration). It consumes the hp-avd-eastus registration token. This registration/agent flow is intricate and owned by the AVD service; treat the modulesUrl/configuration as platform-managed.",
+      "type": "Microsoft.Compute/virtualMachines/extensions",
+      "apiVersion": "2022-08-01",
+      "name": "[concat(variables('sessionHostPrefix'), copyIndex(), '/Microsoft.PowerShell.DSC')]",
+      "location": "[variables('eastusLocation')]",
+      "copy": {
+        "name": "sessionHostDscCopy",
+        "count": "[variables('sessionHostCount')]"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Compute/virtualMachines', concat(variables('sessionHostPrefix'), copyIndex()))]",
+        "[resourceId('Microsoft.DesktopVirtualization/hostPools', variables('hostPoolEastusName'))]"
+      ],
+      "properties": {
+        "publisher": "Microsoft.Powershell",
+        "type": "DSC",
+        "typeHandlerVersion": "2.73",
+        "autoUpgradeMinorVersion": true,
+        "settings": {
+          "modulesUrl": "[variables('avdAgentDscModulesUrl')]",
+          "configurationFunction": "Configuration.ps1\\AddSessionHost",
+          "properties": {
+            "hostPoolName": "[variables('hostPoolEastusName')]",
+            "registrationInfoToken": "[reference(resourceId('Microsoft.DesktopVirtualization/hostPools', variables('hostPoolEastusName')), '2022-09-09').registrationInfo.token]",
+            "aadJoin": true
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "Deployment ID": {
+      "type": "string",
+      "value": "[parameters('DeploymentID')]"
+    },
+    "LABVM Admin Username": {
+      "type": "string",
+      "value": "[parameters('adminUsername')]"
+    },
+    "LABVM Admin Password": {
+      "type": "string",
+      "value": "[parameters('adminPassword')]"
+    },
+    "LABVM DNS Name": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpAddressName'))).dnsSettings.fqdn]"
+    },
+    "LABVM RDP Command": {
+      "type": "string",
+      "value": "[concat('mstsc /v:', reference(resourceId('Microsoft.Network/publicIPAddresses', variables('publicIpAddressName'))).dnsSettings.fqdn)]"
+    },
+    "Region": {
+      "type": "string",
+      "value": "[variables('location')]"
+    },
+    "AVD Workspace Name": {
+      "type": "string",
+      "value": "[variables('workspaceName')]"
+    },
+    "Primary Host Pool": {
+      "type": "string",
+      "value": "[variables('hostPoolEastusName')]"
+    },
+    "FSLogix Storage Account": {
+      "type": "string",
+      "value": "[variables('storageAccountName')]"
+    },
+    "FSLogix Profiles UNC Path": {
+      "type": "string",
+      "value": "[concat('\\\\', variables('storageAccountName'), '.file.core.windows.net\\', variables('fileShareName'))]"
+    },
+    "trainerUserName": {
+      "type": "string",
+      "value": "[parameters('trainerUserName')]"
+    },
+    "trainerUserPassword": {
+      "type": "string",
+      "value": "[parameters('trainerUserPassword')]"
+    }
+  }
+}
