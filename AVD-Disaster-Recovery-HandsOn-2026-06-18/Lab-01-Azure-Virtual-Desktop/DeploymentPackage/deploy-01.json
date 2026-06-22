@@ -481,7 +481,7 @@
           "configurationFunction": "Configuration.ps1\\AddSessionHost",
           "properties": {
             "hostPoolName": "[variables('hostPoolEastusName')]",
-            "registrationInfoToken": "[reference(resourceId('Microsoft.DesktopVirtualization/hostPools', variables('hostPoolEastusName')), '2022-09-09', 'Full').properties.registrationInfo.token]",
+            "registrationInfoToken": "[first(listRegistrationTokens(resourceId('Microsoft.DesktopVirtualization/hostPools', variables('hostPoolEastusName')), '2024-04-03').value).token]",
             "aadJoin": true
           }
         }
