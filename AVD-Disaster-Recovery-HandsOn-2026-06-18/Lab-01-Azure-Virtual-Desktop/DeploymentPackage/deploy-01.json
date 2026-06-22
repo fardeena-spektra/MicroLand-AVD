@@ -80,7 +80,7 @@
     "appGroupWestusName": "ag-avd-westus",
     "tokenExpirationTime": "[dateTimeAdd(parameters('baseTime'), 'PT24H')]",
 
-    "sessionHostSize": "Standard_D2s_v5",
+    "sessionHostSize": "Standard_D2s_v3",
     "sessionHostCount": 2,
     "sessionHostPrefix": "[concat('sheast', parameters('DeploymentID'))]",
     "avdAgentDscModulesUrl": "https://wvdportalstorageblob.blob.core.windows.net/galleryartifacts/Configuration_1.0.02797.442.zip"
