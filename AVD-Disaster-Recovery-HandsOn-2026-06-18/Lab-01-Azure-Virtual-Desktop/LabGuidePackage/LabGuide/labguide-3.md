@@ -26,4 +26,4 @@ Set the FSLogix `Enabled` and `VHDLocations` registry values on the DR session h
 > - If not, carefully read the error message and retry the step, following the instructions in the lab guide.
 > - If you need any assistance, please contact us at cloudlabs-support@spektrasystems.com. We are available 24/7 to help you out.
 
-<validation step="99533b66-374d-4015-8ff8-a70a29fa70cb" />
+<validation step="7eeefb62-9939-474a-8826-fb0a4e4f4796" />

@@ -26,4 +26,4 @@ Create the application group bound to `hp-avd-westus`, then add it to `ws-avd`'s
 > - If not, carefully read the error message and retry the step, following the instructions in the lab guide.
 > - If you need any assistance, please contact us at cloudlabs-support@spektrasystems.com. We are available 24/7 to help you out.
 
-<validation step="0924e6eb-ca78-43af-8b42-7aa6a20a563a" />
+<validation step="a4470170-4927-4b9f-a114-38626f9383c9" />

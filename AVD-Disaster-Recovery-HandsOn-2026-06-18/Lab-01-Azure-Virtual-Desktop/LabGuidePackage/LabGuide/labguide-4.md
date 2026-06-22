@@ -26,4 +26,4 @@ Use `Update-AzWvdSessionHost -AllowNewSession:$false` on the primary hosts (or `
 > - If not, carefully read the error message and retry the step, following the instructions in the lab guide.
 > - If you need any assistance, please contact us at cloudlabs-support@spektrasystems.com. We are available 24/7 to help you out.
 
-<validation step="635c7a09-2797-4e59-be7e-4c950fe06de7" />
+<validation step="48199c95-8b6e-425b-b3e7-b4db2f428f80" />

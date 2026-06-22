@@ -23,4 +23,4 @@ Create the `hp-avd-westus` host pool (Pooled is fine, matching the primary), gen
 > - If not, carefully read the error message and retry the step, following the instructions in the lab guide.
 > - If you need any assistance, please contact us at cloudlabs-support@spektrasystems.com. We are available 24/7 to help you out.
 
-<validation step="ffdbeaae-7635-457d-823b-e1185d61360b" />
+<validation step="826b386b-13a0-4c44-b0a4-2dbb86cebb58" />
