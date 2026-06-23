@@ -49,9 +49,17 @@ flowchart LR
 
 ## **Getting Started with the lab**
 
-Your virtual machine and this **Guide** are available within your web browser. Use the **Split Window** button at the top-right to open the guide beside your desktop session.
+Your virtual machine and this **Guide** are available within your web browser. 
+
+![alt text](./media/images/00.png)
+
+Use the **Split Window** button at the top-right to open the guide beside your desktop session.
+
+![alt text](./media/images/02.png)
 
 ## **Accessing Your Lab Environment**
+
+![alt text](./media/images/01.png)
 
 1. Connect to the Lab VM over RDP using the details on the **Environment** tab.
 
@@ -68,6 +76,8 @@ Your virtual machine and this **Guide** are available within your web browser. U
 1. Your environment id for this run is **<inject key="DeploymentID" enableCopy="false"/>** — quote it if you contact support.
 
 ### **Environment Details**
+
+![alt text](./media/images/01.png)
 
 The following resources are **pre-deployed** in the lab resource group when your environment starts. Do **not** recreate them — build your DR resources alongside them in the **same resource group**.
 
@@ -86,17 +96,20 @@ The secondary `vnet-avd-westus` network is provided for your DR host pool's sess
 
 ## **Track Your Progress**
 
-Use the **Validate** button on each task to check your work. The **Progress** tab shows your validation score; it reaches 100% when all task validations pass.
+Use the **Validate** button on each task to check your work. 
 
-## **Lab Duration Extension**
+![alt text](./media/images/05.png)
 
-You have **120 minutes** for this assessment. If you need more time, click the **Hourglass** icon in the top-right of the lab environment (it appears when 10 minutes remain) and click **OK**.
+The **Progress** tab shows your validation score; it reaches 100% when all task validations pass.
+
+![alt text](./media/images/5.5.png)
+
 
 ## **Support Contact**
 
 The CloudLabs support team is available 24/7 via email and live chat.
 
-- Email Support: cloudlabs-support@spektrasystems.com
+- Email Support: labs-support@spektrasystems.com
 - Live Chat Support: https://cloudlabs.ai/labs-support
 
 Click **Next** to begin Exercise 1.
