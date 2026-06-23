@@ -57,6 +57,20 @@ Use the **Split Window** button at the top-right to open the guide beside your d
 
 ![alt text](./media/images/02.png)
 
+## **Managing Your Virtual Machine**
+
+You may Start, Restart, or Stop your virtual machine at any time using the **Resources** tab available within the lab environment.
+
+![alt text](./media/images/03.png)
+
+---
+
+# **Lab Guide Zoom In / Zoom Out**
+
+To adjust the zoom level of the lab environment page, use the zoom controls located next to the session timer.
+
+![alt text](./media/images/04.png)
+
 ## **Accessing Your Lab Environment**
 
 ![alt text](./media/images/01.png)
@@ -76,8 +90,6 @@ Use the **Split Window** button at the top-right to open the guide beside your d
 1. Your environment id for this run is **<inject key="DeploymentID" enableCopy="false"/>** — quote it if you contact support.
 
 ### **Environment Details**
-
-![alt text](./media/images/01.png)
 
 The following resources are **pre-deployed** in the lab resource group when your environment starts. Do **not** recreate them — build your DR resources alongside them in the **same resource group**.
 
@@ -114,4 +126,5 @@ The CloudLabs support team is available 24/7 via email and live chat.
 
 Click **Next** to begin Exercise 1.
 
+![alt text](./media/images/06.png)
 ## **Happy Assessing !!**
