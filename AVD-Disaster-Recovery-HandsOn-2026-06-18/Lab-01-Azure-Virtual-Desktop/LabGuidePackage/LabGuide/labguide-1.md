@@ -1,4 +1,4 @@
-# Exercise 1: Deploy the Disaster Recovery Host Pool
+# Scenario 1: Deploy the Disaster Recovery Host Pool
 
 ### Estimated Duration: 30 Minutes
 
@@ -21,6 +21,10 @@ Create the `hp-avd-westus` host pool (Pooled is fine, matching the primary), gen
 > **Congratulations** on completing the task! Now, it's time to validate it. Here are the steps:
 > - Hit the Validate button for the corresponding task. If you receive a success message, you can proceed to the next task.
 > - If not, carefully read the error message and retry the step, following the instructions in the lab guide.
-> - If you need any assistance, please contact us at cloudlabs-support@spektrasystems.com. We are available 24/7 to help you out.
 
 <validation step="826b386b-13a0-4c44-b0a4-2dbb86cebb58" />
+
+
+**If you need any assistance, please contact us at cloudlabs-support@spektrasystems.com. We are available 24/7 to help you out.**
+
+

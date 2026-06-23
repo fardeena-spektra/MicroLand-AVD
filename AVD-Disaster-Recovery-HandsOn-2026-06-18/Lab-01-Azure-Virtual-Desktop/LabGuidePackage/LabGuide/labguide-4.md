@@ -1,4 +1,4 @@
-# Exercise 4: Simulate a Regional Outage and Validate Continuity
+# Scenario 4: Simulate a Regional Outage and Validate Continuity
 
 ### Estimated Duration: 30 Minutes
 
@@ -24,6 +24,8 @@ Use `Update-AzWvdSessionHost -AllowNewSession:$false` on the primary hosts (or `
 > **Congratulations** on completing the task! Now, it's time to validate it. Here are the steps:
 > - Hit the Validate button for the corresponding task. If you receive a success message, you can proceed to the next task.
 > - If not, carefully read the error message and retry the step, following the instructions in the lab guide.
-> - If you need any assistance, please contact us at cloudlabs-support@spektrasystems.com. We are available 24/7 to help you out.
 
 <validation step="48199c95-8b6e-425b-b3e7-b4db2f428f80" />
+
+
+**If you need any assistance, please contact us at cloudlabs-support@spektrasystems.com. We are available 24/7 to help you out.**

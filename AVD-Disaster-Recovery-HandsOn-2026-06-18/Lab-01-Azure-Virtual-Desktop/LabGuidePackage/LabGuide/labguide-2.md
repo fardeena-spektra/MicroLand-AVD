@@ -1,4 +1,4 @@
-# Exercise 2: Register the DR Host Pool with a Workspace
+# Scenario 2: Register the DR Host Pool with a Workspace
 
 ### Estimated Duration: 30 Minutes
 
@@ -32,4 +32,5 @@ Create the application group bound to `hp-avd-westus`, then register it to a sup
 
 <validation step="a4470170-4927-4b9f-a114-38626f9383c9" />
 
-If you need any assistance, please contact us at [cloudlabs-support@spektrasystems.com](mailto:cloudlabs-support@spektrasystems.com). We are available 24/7 to help you out.
+
+**If you need any assistance, please contact us at [cloudlabs-support@spektrasystems.com](mailto:cloudlabs-support@spektrasystems.com). We are available 24/7 to help you out.**

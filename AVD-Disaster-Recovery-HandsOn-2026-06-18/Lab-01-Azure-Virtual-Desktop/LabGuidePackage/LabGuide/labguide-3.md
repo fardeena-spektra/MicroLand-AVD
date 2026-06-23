@@ -1,4 +1,4 @@
-# Exercise 3: Configure FSLogix Profiles and Verify Storage Replication
+# Scenario 3: Configure FSLogix Profiles and Verify Storage Replication
 
 ### Estimated Duration: 30 Minutes
 
@@ -24,6 +24,8 @@ Set the FSLogix `Enabled` and `VHDLocations` registry values on the DR session h
 > **Congratulations** on completing the task! Now, it's time to validate it. Here are the steps:
 > - Hit the Validate button for the corresponding task. If you receive a success message, you can proceed to the next task.
 > - If not, carefully read the error message and retry the step, following the instructions in the lab guide.
-> - If you need any assistance, please contact us at cloudlabs-support@spektrasystems.com. We are available 24/7 to help you out.
 
 <validation step="7eeefb62-9939-474a-8826-fb0a4e4f4796" />
+
+
+**If you need any assistance, please contact us at cloudlabs-support@spektrasystems.com. We are available 24/7 to help you out.**
