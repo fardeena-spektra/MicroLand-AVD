@@ -1,8 +1,6 @@
-# Scenario 4: Simulate a Regional Outage and Validate Continuity
+# **Scenario 4: Simulate a Regional Outage and Validate Continuity**
 
-### Estimated Duration: 30 Minutes
-
-## Lab Overview
+## **Lab Overview**
 
 A DR design is only credible once it has been **tested**. With the West US host pool built, registered, and backed by geo-redundant FSLogix profiles, you must now rehearse a failover: take the **primary** East US capacity out of service and prove the **DR** host pool is ready to carry user connections. As the AVD administrator you simulate a regional outage and confirm continuity.
 
@@ -10,7 +8,7 @@ This is an **assessment**: the task gives you the **symptom and the required out
 
 > **Note:** This is a controlled drill. "Taking the primary out of service" means draining it (`AllowNewSession = false`) or stopping/deallocating its session host VMs — you do not delete anything.
 
-## Task 1: Drain the primary and confirm the DR pool is ready
+## **Task 1: Drain the primary and confirm the DR pool is ready**
 
 **Symptom:** A regional outage in East US has been declared. New sessions must stop landing on the primary hosts, and the West US DR pool must be confirmed ready to accept users — but nothing has been switched over yet.
 

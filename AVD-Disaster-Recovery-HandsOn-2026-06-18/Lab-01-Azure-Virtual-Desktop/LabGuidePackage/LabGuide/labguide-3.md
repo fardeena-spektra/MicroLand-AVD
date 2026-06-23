@@ -1,8 +1,6 @@
-# Scenario 3: Configure FSLogix Profiles and Verify Storage Replication
+# **Scenario 3: Configure FSLogix Profiles and Verify Storage Replication**
 
-### Estimated Duration: 30 Minutes
-
-## Lab Overview
+## **Lab Overview**
 
 For DR to be useful, users must get **their own profile** when they land on a West US session host. FSLogix profile containers solve this by storing each user's profile on an SMB file share. The profiles must also survive a regional failure, which means the share has to live on **geo-redundant** storage. As the AVD administrator you must point the DR session hosts at the provided Azure Files share and confirm the storage is replicated across regions.
 
@@ -10,7 +8,7 @@ This is an **assessment**: the task gives you the **symptom and the required out
 
 > **Note:** The Azure Files share `profiles` is already provided on the pre-deployed storage account (`stavd<unique>`). Do not create a new storage account — use the provided one, and confirm its replication setting.
 
-## Task 1: Point FSLogix at the profiles share and confirm geo-redundancy
+## **Task 1: Point FSLogix at the profiles share and confirm geo-redundancy**
 
 **Symptom:** DR session hosts have no shared profile location, so users would get a fresh temporary profile after failover. The team also needs proof that profile data would survive the loss of the primary region.
 

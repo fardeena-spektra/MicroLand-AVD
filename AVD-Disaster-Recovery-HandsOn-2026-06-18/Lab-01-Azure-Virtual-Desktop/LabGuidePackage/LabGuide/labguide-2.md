@@ -1,8 +1,6 @@
-# Scenario 2: Register the DR Host Pool with a Workspace
+# **Scenario 2: Register the DR Host Pool with a Workspace**
 
-### Estimated Duration: 30 Minutes
-
-## Lab Overview
+## **Lab Overview**
 
 A host pool is only reachable by users once it is surfaced through an **application group** that is **registered to a workspace**. Your new `hp-avd-westus` pool exists, but users still cannot see it. As the AVD administrator you must publish it through a workspace so DR desktops appear in users' Remote Desktop feed.
 
@@ -10,7 +8,7 @@ This is an **assessment**: the task gives you the **symptom and the required out
 
 > **Note:** You may register the West US application group to the existing `ws-avd` workspace or create and use a dedicated `ws-avd-westus` workspace.
 
-## Task 1: Publish hp-avd-westus through a workspace
+## **Task 1: Publish hp-avd-westus through a workspace**
 
 **Symptom:** The DR host pool has no application group, and no workspace currently exposes the West US desktop resources. Even though the pool is up, users would get no DR desktop in their feed during a failover.
 

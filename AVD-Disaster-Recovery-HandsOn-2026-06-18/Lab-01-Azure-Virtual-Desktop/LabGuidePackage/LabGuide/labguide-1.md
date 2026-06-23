@@ -1,8 +1,6 @@
-# Scenario 1: Deploy the Disaster Recovery Host Pool
+# **Scenario 1: Deploy the Disaster Recovery Host Pool**
 
-### Estimated Duration: 30 Minutes
-
-## Lab Overview
+## **Lab Overview**
 
 The production AVD environment runs entirely in **East US** (`hp-avd-eastus`). If that region became unavailable, users would have nowhere to connect. As the AVD administrator you must stand up a **second host pool in West US** so the service can fail over to another region.
 
@@ -10,7 +8,7 @@ This is an **assessment**: each task gives you the **symptom and the required ou
 
 > **Note:** Connect to the management VM over RDP, sign in to the lab subscription with `Connect-AzAccount`, and confirm you are in the lab resource group before you start. Build the new resources in the **same lab resource group** as the pre-deployed primary environment, and attach the new session host(s) to the pre-provisioned `vnet-avd-westus` network.
 
-## Task 1: Create the West US host pool with a registered session host
+## **Task 1: Create the West US host pool with a registered session host**
 
 **Symptom:** All AVD capacity lives in East US. There is no host pool in a second region, so a regional outage would take the desktop service down with no failover target.
 
