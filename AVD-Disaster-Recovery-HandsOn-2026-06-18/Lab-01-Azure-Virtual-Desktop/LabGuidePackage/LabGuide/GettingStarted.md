@@ -1,14 +1,14 @@
-# Azure Virtual Desktop — Disaster Recovery (Lab 01)
+# **Azure Virtual Desktop — Disaster Recovery (Lab 01)**
 
 Welcome to your Azure Virtual Desktop (AVD) Disaster Recovery hands-on skills assessment. This environment gives you a live Windows management VM and a dedicated Azure subscription and resource group in which a **primary AVD environment is already running in East US**. Read this page, then move to **Exercise 1** to begin.
 
-### Overall Estimated timing: 120 Minutes
+### **Overall Estimated timing: 120 Minutes**
 
-## Overview
+## **Overview**
 
 In this assessment you act as an **AVD administrator** responsible for business continuity. A production AVD environment is **pre-deployed for you in East US** — workspace, host pool, application group, two session hosts, and an Azure Files share for FSLogix profiles. From a Windows management VM you connect to the lab's Azure subscription and **implement and test a Disaster Recovery (DR) solution in West US**: you stand up a secondary host pool, register it with the existing workspace, wire up FSLogix on geo-redundant storage, then simulate a regional outage and prove users can still connect. You are graded on the **state of the Azure resources** in the lab resource group.
 
-## Objectives
+## **Objectives**
 
 By the end of this assessment you will have:
 
@@ -17,11 +17,11 @@ By the end of this assessment you will have:
 3. **Configured FSLogix profiles on the provided Azure Files share** and verified the storage account is geo-redundant.
 4. **Simulated a regional outage** by draining/stopping the primary session hosts and verified the DR host pool is ready to accept connections.
 
-## Pre-requisites
+## **Pre-requisites**
 
 Working knowledge of Azure Virtual Desktop: host pools, session hosts, workspaces and application groups; FSLogix profile containers and Azure Files; Azure Storage replication (LRS/GRS/GZRS/RAGRS) and regional resiliency; and the `Az.DesktopVirtualization` PowerShell module (`Get-/New-/Update-AzWvd*`) together with `Az.Storage` and `Az.Compute`.
 
-## Architecture
+## **Architecture**
 
 A single Windows management VM is your control point. You connect to it over RDP, sign in to the lab's Azure subscription with Az PowerShell, and operate the East US primary AVD environment and the West US DR environment.
 
@@ -47,11 +47,11 @@ flowchart LR
     SHW -.FSLogix.-> FS
 ```
 
-## Getting Started with the lab
+## **Getting Started with the lab**
 
 Your virtual machine and this **Guide** are available within your web browser. Use the **Split Window** button at the top-right to open the guide beside your desktop session.
 
-## Accessing Your Lab Environment
+## **Accessing Your Lab Environment**
 
 1. Connect to the Lab VM over RDP using the details on the **Environment** tab.
 
@@ -67,7 +67,7 @@ Your virtual machine and this **Guide** are available within your web browser. U
 
 1. Your environment id for this run is **<inject key="DeploymentID" enableCopy="false"/>** — quote it if you contact support.
 
-### Environment Details
+### **Environment Details**
 
 The following resources are **pre-deployed** in the lab resource group when your environment starts. Do **not** recreate them — build your DR resources alongside them in the **same resource group**.
 
@@ -84,15 +84,15 @@ The following resources are **pre-deployed** in the lab resource group when your
 
 The secondary `vnet-avd-westus` network is provided for your DR host pool's session hosts. Everything in West US (host pool, application group, session host) is yours to build.
 
-## Track Your Progress
+## **Track Your Progress**
 
 Use the **Validate** button on each task to check your work. The **Progress** tab shows your validation score; it reaches 100% when all task validations pass.
 
-## Lab Duration Extension
+## **Lab Duration Extension**
 
 You have **120 minutes** for this assessment. If you need more time, click the **Hourglass** icon in the top-right of the lab environment (it appears when 10 minutes remain) and click **OK**.
 
-## Support Contact
+## **Support Contact**
 
 The CloudLabs support team is available 24/7 via email and live chat.
 
@@ -101,4 +101,4 @@ The CloudLabs support team is available 24/7 via email and live chat.
 
 Click **Next** to begin Exercise 1.
 
-## Happy Assessing !!
+## **Happy Assessing !!**
