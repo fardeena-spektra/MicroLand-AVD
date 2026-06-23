@@ -53,38 +53,104 @@ az desktopvirtualization hostpool update -g <RG> -n hp-avd-westus \
 
 ---
 
-## Exercise 2 / Task 1 — Register hp-avd-westus with the existing ws-avd workspace
+## Exercise 2 / Task 1 — Publish the DR Host Pool Through a Workspace
 
-**Objective:** A West US application group for `hp-avd-westus` exists and is registered to the existing `ws-avd` workspace.
+**Objective:** A West US Desktop application group (`ag-avd-westus`) exists for `hp-avd-westus` and is registered to a workspace so the DR desktop is available in the Remote Desktop feed.
 
 **Fix (Az.DesktopVirtualization):**
 
 ```powershell
 # 1) Create the Desktop application group bound to hp-avd-westus
 $hp = Get-AzWvdHostPool -ResourceGroupName <RG> -Name hp-avd-westus
-New-AzWvdApplicationGroup -ResourceGroupName <RG> -Name ag-avd-westus -Location westus `
-    -HostPoolArmPath $hp.Id -ApplicationGroupType Desktop
 
-# 2) Add it to the EXISTING ws-avd workspace (preserve the existing East US reference)
-$ws = Get-AzWvdWorkspace -ResourceGroupName <RG> -Name ws-avd
-$ag = Get-AzWvdApplicationGroup -ResourceGroupName <RG> -Name ag-avd-westus
-Update-AzWvdWorkspace -ResourceGroupName <RG> -Name ws-avd `
-    -ApplicationGroupReference (@($ws.ApplicationGroupReference) + $ag.Id)
+New-AzWvdApplicationGroup `
+    -ResourceGroupName <RG> `
+    -Name ag-avd-westus `
+    -Location westus `
+    -HostPoolArmPath $hp.Id `
+    -ApplicationGroupType Desktop
+
+# 2) Create a West US workspace for DR
+New-AzWvdWorkspace `
+    -ResourceGroupName <RG> `
+    -Name ws-avd-westus `
+    -Location westus `
+    -FriendlyName "AVD DR Workspace" `
+    -Description "West US DR Workspace"
+
+# 3) Register the application group with the workspace
+$ag = Get-AzWvdApplicationGroup `
+    -ResourceGroupName <RG> `
+    -Name ag-avd-westus
+
+Update-AzWvdWorkspace `
+    -ResourceGroupName <RG> `
+    -Name ws-avd-westus `
+    -ApplicationGroupReference @($ag.Id)
 ```
 
 **Alternative (Azure CLI):**
 
 ```bash
-hpId=$(az desktopvirtualization hostpool show -g <RG> -n hp-avd-westus --query id -o tsv)
-az desktopvirtualization applicationgroup create -g <RG> -n ag-avd-westus --location westus \
-    --host-pool-arm-path "$hpId" --application-group-type Desktop
-agId=$(az desktopvirtualization applicationgroup show -g <RG> -n ag-avd-westus --query id -o tsv)
-az desktopvirtualization workspace update -g <RG> -n ws-avd --application-group-references "$agId" <existing-east-ref>
+hpId=$(az desktopvirtualization hostpool show \
+    -g <RG> \
+    -n hp-avd-westus \
+    --query id -o tsv)
+
+az desktopvirtualization applicationgroup create \
+    -g <RG> \
+    -n ag-avd-westus \
+    --location westus \
+    --host-pool-arm-path "$hpId" \
+    --application-group-type Desktop
+
+az desktopvirtualization workspace create \
+    -g <RG> \
+    -n ws-avd-westus \
+    --location westus \
+    --friendly-name "AVD DR Workspace"
+
+agId=$(az desktopvirtualization applicationgroup show \
+    -g <RG> \
+    -n ag-avd-westus \
+    --query id -o tsv)
+
+az desktopvirtualization workspace update \
+    -g <RG> \
+    -n ws-avd-westus \
+    --application-group-references "$agId"
 ```
 
-**Expected result:** `Get-AzWvdWorkspace -ResourceGroupName <RG> -Name ws-avd` lists an application-group reference whose application group's `HostPoolArmPath` ends with `hp-avd-westus`.
+**Expected result:**
 
-**Validation:** `validate-task2-register-workspace.ps1` walks `ws-avd`'s `ApplicationGroupReference`, resolves each application group, and confirms one points at `hp-avd-westus` (or is named `ag-avd-westus`).
+```powershell
+Get-AzWvdWorkspace `
+    -ResourceGroupName <RG> `
+    -Name ws-avd-westus |
+    Select -ExpandProperty ApplicationGroupReference
+```
+
+returns a reference to:
+
+```text
+ag-avd-westus
+```
+
+and:
+
+```powershell
+Get-AzWvdApplicationGroup `
+    -ResourceGroupName <RG> `
+    -Name ag-avd-westus
+```
+
+shows:
+
+```text
+HostPoolArmPath ... hp-avd-westus
+```
+
+**Validation:** `validate-task2-register-workspace.ps1` checks that the `ag-avd-westus` application group exists and is associated with the `hp-avd-westus` host pool. The validator then verifies that either `ws-avd` or `ws-avd-westus` references `ag-avd-westus`. Validation succeeds when the West US application group is registered to either workspace.
 
 ---
 

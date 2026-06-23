@@ -1,4 +1,4 @@
-# **Azure Virtual Desktop — Disaster Recovery (Lab 01)**
+# **Azure Virtual Desktop — Disaster Recovery-Assessment — 01**
 
 Welcome to your Azure Virtual Desktop (AVD) Disaster Recovery hands-on skills assessment. This environment gives you a live Windows management VM and a dedicated Azure subscription and resource group in which a **primary AVD environment is already running in East US**. Read this page, then move to **Exercise 1** to begin.
 
